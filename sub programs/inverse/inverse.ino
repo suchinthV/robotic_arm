@@ -80,7 +80,7 @@ Interpolation interpZ;
 void setup() {
   Serial.begin(9600);
     servo2.attach(6);         // shoulder
-  servo3.attach(9);         // elbow
+  servo3.attach(10);         // elbow
     servo2.writeMicroseconds(servo2Offset);    // shoulder
   servo3.writeMicroseconds(servo3Offset);    // elbow
   // put your setup code here, to run once:
@@ -100,6 +100,7 @@ void loop() {
   double y_range=sqrt(sq(460.0)-sq(z));
   Serial.print(y_range);
   Serial.print("    ");
+  
   int k=analogRead(A1);
   k=map(k,0,1024,80,y_range);
   Serial.print("k  :");
@@ -118,24 +119,21 @@ void loop() {
   // ****************
   Serial.print("    ");
 
-  // calculate arm length based on upper/lower length and elbow and shoulder angle
   shoulderAngle2a = (sq(x) + sq(z2) - sq(z)) / (2 * x * z2);
   double shi = acos(shoulderAngle2a);
-  //Serial.print(shi);
-  //Serial.print("    ");
+ 
   shoulderAngle1a = (sq(lowerLength) + sq(z2) - sq(upperLength)) / (2 * lowerLength * z2);
-  // Serial.print(shoulderAngle1a);
-  // Serial.print("    ");
+
 
   double theeta = acos(shoulderAngle1a);     // radians
-  // Serial.print(theeta);
+ 
 
 
   shoulderAngle = theeta + shi;
 
   elbowAngle =  (sq(lowerLength)  + sq(upperLength) - sq(z2)) / (2 * lowerLength * upperLength );   // radians
   double alpha = acos(elbowAngle);
-  // Serial.println(elbowAngle);
+
   elbowAngleDegrees = alpha * (180 / PI);
   Serial.print(elbowAngleDegrees);
   Serial.print("    ");
@@ -145,17 +143,16 @@ void loop() {
   shoulderMs = ((180-shoulderAngleDegrees) * 10.0 )+600;
   elbowMs = ((180-elbowAngleDegrees) * 9.0  )+600;
 
-  Serial.print("    ");
-  Serial.print(shoulderAngleDegrees);
-  Serial.print("    ");
-  Serial.print(180-elbowAngleDegrees);
-  Serial.println("    ");
-//
-////
-  float ang = interpX.go(shoulderMs,1000);
-  float ang2 = interpZ.go(elbowMs,1000);
+
+  float ang = interpX.go(shoulderMs,100);
+  float ang2 = interpZ.go(elbowMs,100);
+  if(! isnan(ang)){
+  
   servo2.writeMicroseconds(ang );    // shoulder
+   }
+  if(! isnan(ang)){
   servo3.writeMicroseconds(ang2  );    // elbow  
+  }
 
 //  servo3.write(180-elbowAngleDegrees);    // shoulder
 //  servo2.write(180- shoulderAngleDegrees);    // elbow  
